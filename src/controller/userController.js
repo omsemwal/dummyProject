@@ -89,3 +89,49 @@ exports.createBalance = async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-privateAddress"); // Exclude privateAddress if needed
+    res.status(200).json({
+      status: true,
+      message: "Users fetched successfully.",
+      data: users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
+    res.status(500).json({ status: false, message: "Internal server error." });
+  }
+};
+
+exports.getAllTransactions = async (req, res) => {
+  try {
+    const transactions = await Transaction.find()
+      .populate("fromUserId", "walletAddress") // Populate fromUserId with walletAddress
+      .populate("toUserId", "walletAddress"); // Populate toUserId with walletAddress
+    res.status(200).json({
+      status: true,
+      message: "Transactions fetched successfully.",
+      data: transactions,
+    });
+  } catch (error) {
+    console.error("Error fetching transactions:", error.message);
+    res.status(500).json({ status: false, message: "Internal server error." });
+  }
+};
+
+exports.getAllBalances = async (req, res) => {
+  try {
+    const balances = await Balance.find()
+      .populate("userId", "walletAddress") // Populate userId with walletAddress
+      .select("-blinding"); // Exclude blinding if needed
+    res.status(200).json({
+      status: true,
+      message: "Balances fetched successfully.",
+      data: balances,
+    });
+  } catch (error) {
+    console.error("Error fetching balances:", error.message);
+    res.status(500).json({ status: false, message: "Internal server error." });
+  }
+};
